@@ -80,7 +80,7 @@ class AuthorController extends Controller
         }
 
         $data = [
-            'student' => $author,
+            'autor' => $author,
             'status' => 200
         ];
 
@@ -187,7 +187,7 @@ class AuthorController extends Controller
 
         $data = [
             'message' => 'Autor actualizado',
-            'student' => $author,
+            'autor' => $author,
             'status' => 200
         ];
 
