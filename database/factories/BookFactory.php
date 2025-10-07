@@ -2,6 +2,7 @@
 
 namespace Database\Factories;
 
+use App\Models\Author;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
@@ -16,8 +17,12 @@ class BookFactory extends Factory
      */
     public function definition(): array
     {
-        return [
-            //
+         return [
+            'titulo' => $this->faker->sentence(3),
+            'author_id' => Author::inRandomOrder()->first()?->id ?? Author::factory(),
+            'editorial' => $this->faker->company(),
+            'publicacion' => $this->faker->year(),
+            'stock' => $this->faker->numberBetween(1, 100),
         ];
     }
 }

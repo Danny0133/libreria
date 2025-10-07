@@ -11,7 +11,8 @@ class Author extends Model
     /** @use HasFactory<\Database\Factories\AuthorFactory> */
     use HasFactory;
 
-    public function test() : HasMany{
+    public function books()
+    {
         return $this->hasMany(Book::class);
     }
 }
