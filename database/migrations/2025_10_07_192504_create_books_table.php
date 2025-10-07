@@ -17,7 +17,7 @@ return new class extends Migration
             $table->string('autor');
             $table->string('editorial');
             $table->string('publicacion');
-            $table->string('stock');
+            $table->integer('stock');
             $table->timestamps();
         });
     }
