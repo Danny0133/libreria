@@ -2,9 +2,10 @@
 
 namespace App\Http\Controllers;
 
-use App\Http\Requests\StoreAuthorRequest;
-use App\Http\Requests\UpdateAuthorRequest;
+use App\Http\Controllers\Controller;
+use Illuminate\Http\Request;
 use App\Models\Author;
+use Illuminate\Support\Facades\Validator;
 
 class AuthorController extends Controller
 {
@@ -13,54 +14,183 @@ class AuthorController extends Controller
      */
     public function index()
     {
-        //
+        $authors = Author::all();
+
+        if($authors->isEmpty()){
+            $data = [
+                'message' => 'No hay autores registrados aún',
+                'status' => 200
+            ];
+            return response()->json($data, 200);
+        }else{
+            return response()->json($authors, 200);
+        }
     }
 
-    /**
-     * Show the form for creating a new resource.
-     */
-    public function create()
+    public function store(Request $request)
     {
-        //
-    }
+        $validator = Validator::make($request->all(), [
+            'nombre' => 'required|max:255',
+            'apellidos' => 'required|max:255',
+        ]);
 
-    /**
-     * Store a newly created resource in storage.
-     */
-    public function store(StoreAuthorRequest $request)
-    {
-        //
+         if ($validator->fails()) {
+            $data = [
+                'message' => 'Error',
+                'errors' => $validator->errors(),
+                'status' => 400
+            ];
+            return response()->json($data, 400);
+        }
+
+        $author = Author::create([
+            'nombre' => $request->nombre,
+            'apellidos' => $request->apellidos
+        ]);
+
+         if (!$author) {
+            $data = [
+                'message' => 'Error al crear el autor',
+                'status' => 500
+            ];
+            return response()->json($data, 500);
+        }
+
+        $data = [
+            'author' => $author,
+            'status' => 201
+        ];
+
+        return response()->json($data, 201);
     }
 
     /**
      * Display the specified resource.
      */
-    public function show(Author $author)
+    public function show($id)
     {
-        //
+        $author = Author::find($id);
+
+         if (!$author) {
+            $data = [
+                'message' => 'Autor no encontrado',
+                'status' => 404
+            ];
+            return response()->json($data, 404);
+        }
+
+        $data = [
+            'student' => $author,
+            'status' => 200
+        ];
+
+        return response()->json($data, 200);
     }
 
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(Author $author)
+    public function delete($id)
     {
-        //
+        $author = Author::find($id);
+
+        if (!$author) {
+            $data = [
+                'message' => 'Autor no encontrado',
+                'status' => 404
+            ];
+            return response()->json($data, 404);
+        }
+        
+        $author->delete();
+
+        $data = [
+            'message' => 'Autor eliminado',
+            'status' => 200
+        ];
+
+        return response()->json($data, 200);
     }
 
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(UpdateAuthorRequest $request, Author $author)
+    public function update(Request $request, $id)
     {
-        //
+        $author = Author::find($id);
+
+        if (!$author) {
+            $data = [
+                'message' => 'Autor no encontrado',
+                'status' => 404
+            ];
+            return response()->json($data, 404);
+        }
+
+        $validator = Validator::make($request->all(), [
+            'nombre' => 'required|max:255',
+            'apellidos' => 'required|max:255',
+        ]);
+
+        if ($validator->fails()) {
+            $data = [
+                'message' => 'Error en la validación de los datos',
+                'errors' => $validator->errors(),
+                'status' => 400
+            ];
+            return response()->json($data, 400);
+        }
+
+        $author->nombre = $request->nombre;
+        $author->apellidos = $request->apellidos;
+
+        $author->save();
+
+        $data = [
+            'message' => 'Autor actualizado',
+            'autor' => $author,
+            'status' => 200
+        ];
+
+        return response()->json($data, 200);
     }
 
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(Author $author)
+    public function patch(Request $request, $id)
     {
-        //
+        $author = Author::find($id);
+
+        if (!$author) {
+            $data = [
+                'message' => 'Autor no encontrado',
+                'status' => 404
+            ];
+            return response()->json($data, 404);
+        }
+
+        $validator = Validator::make($request->all(), [
+            'nombre' => 'max:255',
+            'apellidos' => 'max:255',
+        ]);
+
+        if ($validator->fails()) {
+            $data = [
+                'message' => 'Error en la validación de los datos',
+                'errors' => $validator->errors(),
+                'status' => 400
+            ];
+            return response()->json($data, 400);
+        }
+
+        if ($request->has('nombre')) {
+            $author->nombre = $request->nombre;
+        }
+
+        if ($request->has('apellidos')) {
+            $author->apellidos = $request->apellidos;
+        }
+
+        $author->save();
+
+        $data = [
+            'message' => 'Autor actualizado',
+            'student' => $author,
+            'status' => 200
+        ];
+
+        return response()->json($data, 200);
     }
 }
